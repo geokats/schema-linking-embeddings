@@ -2,6 +2,7 @@ import json
 import argparse
 import random
 import pandas as pd
+from edgelist import EdgeList
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__,
@@ -22,3 +23,12 @@ if __name__ == '__main__':
         table = json.loads(line)
         tdf = wikisql_table_to_df(table)
         print(tdf)
+
+        edgefile = "edge.txt"
+        pref = ['3#__tn', '3$__tt', '5$__idx', '1$__cid']
+        info = None
+
+        el = EdgeList(tdf, edgefile, pref, info, flatten=True)
+        edge_dict = el.convert_to_dict()
+        for k,v in edge_dict.items():
+            print(f"{k}: {v}")
