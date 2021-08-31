@@ -4,10 +4,10 @@ import random
 import pandas as pd
 
 from edgelist import EdgeList
-# from generate_random_walks import *
 from EmbDI.utils import *
 from EmbDI.graph import graph_generation
 from EmbDI.sentence_generation_strategies import random_walks_generation
+from EmbDI.embeddings import learn_embeddings
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__,
@@ -66,3 +66,7 @@ if __name__ == '__main__':
             #  Compute the number of sentences according to the rule of thumb.
             configuration['n_sentences'] = graph.compute_n_sentences(int(configuration['sentence_length']))
         walks = random_walks_generation(configuration, graph)
+
+
+        learn_embeddings("example.emb", "pipeline/walks/example.walks", True, 100, 15, training_algorithm='word2vec',
+                             learning_method='skipgram', sampling_factor=0.001)
