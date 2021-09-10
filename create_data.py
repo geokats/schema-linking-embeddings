@@ -42,6 +42,11 @@ def find_name_link(col_name, n_grams, n_grams_tok):
 
     return link
 
+def print_example():
+    print(nlq)
+    print(sql_readable)
+    print(example['schema_links'])
+    print()
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__,
@@ -67,13 +72,20 @@ if __name__ == '__main__':
     total_pm = 0
 
     stats = {
-        "sel_cols" : 0, #Total number of SELECT columnms in the dataset
+        "examples" : 0, #Total number of examples seen
+        "coverage" : 0, #Number of examples with found SELECT link and either a name or value link for all WHERE columns
+
+        "sel_cols" : 0, #Total number of SELECT columns in the dataset
         "sel_em" : 0, #Number of SELECT columns matched exactly
         "sel_pm" : 0, #Number of SELECT columns matched partially
 
-        "whr_cols" : 0, #Total number of WHERE columnms in the dataset
+        "whr_cols" : 0, #Total number of WHERE columns in the dataset
         "whr_em" : 0, #Number of WHERE columns matched exactly
         "whr_pm" : 0, #Number of WHERE columns matched partially
+
+        "whr_vals" : 0, #Total number of WHERE values in the dataset
+        "val_em" : 0, #Number of WHERE values matched exactly
+        "val_pm" : 0, #Number of WHERE values matched partially
     }
 
     lemmatizer = WordNetLemmatizer()
@@ -83,6 +95,7 @@ if __name__ == '__main__':
             example = json.loads(line)
             example['schema_links'] = {}
             example['schema_links']['where_name'] = []
+            example['schema_links']['where_value'] = []
 
             #Get the table of the example
             table = tables[example['table_id']]
@@ -102,7 +115,7 @@ if __name__ == '__main__':
                 n_grams_tok.extend(nltk.ngrams(tokens, n))
             n_grams = [' '.join(x) for x in n_grams_tok]
 
-                        #Find a name link for the SELECT column
+            #Find a name link for the SELECT column
             sel_col_name = header[sql['sel']].lower()
             link = find_name_link(sel_col_name, n_grams, n_grams_tok)
 
@@ -133,11 +146,44 @@ if __name__ == '__main__':
                     else:
                         stats['whr_pm'] += 1
 
+            #Find a value link for the WHERE columns
+            values = [str(x[2]).lower() for x in sql['conds']]
+            for value in values:
+                link = find_name_link(value, n_grams, n_grams_tok)
+
+                #Save WHERE column value link
+                example['schema_links']['where_value'].append(link)
+
+                #Update statistics
+                stats['whr_vals'] += 1
+                if link != None:
+                    if link == value:
+                        stats['val_em'] += 1
+                    else:
+                        stats['val_pm'] += 1
+
+            #Save example and update statistics
+            stats['examples'] += 1
+            if example['schema_links']['select_name'] != None:
+                good_example = True
+                for name_link, val_link in zip(example['schema_links']['where_name'], example['schema_links']['where_value']):
+                    if name_link == None and val_link == None:
+                        good_example = False
+
+                if good_example:
+                    stats['coverage'] += 1
+
     #Print statistics
+    print(f"{stats['coverage']}/{stats['examples']} ({round(stats['coverage']/stats['examples'] * 100, 2)}%) examples covered\n")
+
     print(f"{stats['sel_em']}/{stats['sel_cols']} ({round(stats['sel_em']/stats['sel_cols'] * 100, 2)}%) SELECT exact matches")
     print(f"{stats['sel_pm']}/{stats['sel_cols']} ({round(stats['sel_pm']/stats['sel_cols'] * 100, 2)}%) SELECT partial matches")
     print(f"{stats['sel_em']+stats['sel_pm']}/{stats['sel_cols']} ({round((stats['sel_em']+stats['sel_pm'])/stats['sel_cols'] * 100, 2)}%) SELECT total coverage\n")
 
-    print(f"{stats['whr_em']}/{stats['whr_cols']} ({round(stats['whr_em']/stats['whr_cols'] * 100, 2)}%) WHERE exact matches")
-    print(f"{stats['whr_pm']}/{stats['whr_cols']} ({round(stats['whr_pm']/stats['whr_cols'] * 100, 2)}%) WHERE partial matches")
-    print(f"{stats['whr_em']+stats['whr_pm']}/{stats['whr_cols']} ({round((stats['whr_em']+stats['whr_pm'])/stats['whr_cols'] * 100, 2)}%) WHERE total coverage")
+    print(f"{stats['whr_em']}/{stats['whr_cols']} ({round(stats['whr_em']/stats['whr_cols'] * 100, 2)}%) WHERE column exact matches")
+    print(f"{stats['whr_pm']}/{stats['whr_cols']} ({round(stats['whr_pm']/stats['whr_cols'] * 100, 2)}%) WHERE column partial matches")
+    print(f"{stats['whr_em']+stats['whr_pm']}/{stats['whr_cols']} ({round((stats['whr_em']+stats['whr_pm'])/stats['whr_cols'] * 100, 2)}%) WHERE column total coverage\n")
+
+    print(f"{stats['val_em']}/{stats['whr_vals']} ({round(stats['val_em']/stats['whr_vals'] * 100, 2)}%) WHERE value exact matches")
+    print(f"{stats['val_pm']}/{stats['whr_vals']} ({round(stats['val_pm']/stats['whr_vals'] * 100, 2)}%) WHERE value partial matches")
+    print(f"{stats['val_em']+stats['val_pm']}/{stats['whr_vals']} ({round((stats['val_em']+stats['val_pm'])/stats['whr_vals'] * 100, 2)}%) WHERE value total coverage")
