@@ -28,10 +28,10 @@ def wikisql_redable(sql, table):
 def find_name_link(col_name, n_grams, n_grams_tok):
     link = None
     best_sim = 0
-    col_tok = nltk.word_tokenize(sel_col_name)
+    col_tok = nltk.word_tokenize(col_name)
 
     for n_gram, n_gram_tok in zip(n_grams, n_grams_tok):
-        if n_gram == sel_col_name:
+        if n_gram == col_name:
             link = n_gram
             break
         else:
