@@ -54,6 +54,7 @@ def parse_args():
 
     parser.add_argument("-i", "--input_file", required=True, help="Input WikiSQL .jsonl file")
     parser.add_argument("-t", "--table_file", required=True, help="Input WikiSQL .tables.jsonl file")
+    parser.add_argument("-o", "--output_file", required=True, help="Output file to save the updated examples with schema links")
 
     return(parser.parse_args())
 
@@ -90,8 +91,8 @@ if __name__ == '__main__':
 
     lemmatizer = WordNetLemmatizer()
 
-    with open(args.input_file, 'r') as f:
-        for line in tqdm(f.readlines()):
+    with open(args.input_file, 'r') as inp_f, open(args.output_file, 'w') as out_f:
+        for line in tqdm(inp_f.readlines()):
             example = json.loads(line)
             example['schema_links'] = {}
             example['schema_links']['where_name'] = []
@@ -172,6 +173,8 @@ if __name__ == '__main__':
 
                 if good_example:
                     stats['coverage'] += 1
+                    out_f.write(json.dumps(example))
+                    out_f.write('\n')
 
     #Print statistics
     print(f"{stats['coverage']}/{stats['examples']} ({round(stats['coverage']/stats['examples'] * 100, 2)}%) examples covered\n")
