@@ -29,7 +29,9 @@ def parse_args():
     return(parser.parse_args())
 
 def wikisql_table_to_df(table):
-    df = pd.DataFrame(columns=table['header'], data=table['rows'])
+    #We must remove all commas, otherwise EmbDI cannot read the edgefile
+    header = [h.replace(',','') for h in table['header']]
+    df = pd.DataFrame(columns=header, data=table['rows'])
     df = df.replace(',','', regex=True)
     return df
 
