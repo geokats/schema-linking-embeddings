@@ -9,6 +9,8 @@ from EmbDI.graph import graph_generation
 from EmbDI.sentence_generation_strategies import random_walks_generation
 from EmbDI.embeddings import learn_embeddings
 
+from alignment.utils import *
+
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -60,7 +62,7 @@ def create_table_emb(tdf):
     walks = random_walks_generation(configuration, graph)
 
 
-    learn_embeddings("example.emb", "example.walks", True, 100, 15,
+    learn_embeddings("example.emb", "example.walks", True, 300, 15,
                      training_algorithm='fasttext',
                      learning_method='skipgram', sampling_factor=0.001
                     )
@@ -69,6 +71,14 @@ def create_table_emb(tdf):
 if __name__ == '__main__':
     args = parse_args()
 
+    #Load the pre-trained word embeddings
+    #NOTE: In our case the pre-trained embeddings are the source embeddings, while
+    #      the table embeddings are the target embeddings, and we want to find
+    #      a mapping from the table embeddings space to the pre-trained space
+    words_pre, vec_pre = load_vectors("embeddings/wiki-news-300d-1M.vec", maxload=10000)
+    words_pre_set = set(words_pre)
+    idx_pre = idx(words_pre)
+
     with open(args.input_file, 'r') as f:
         #Read a table
         # line = random.choice(f.readlines())
@@ -76,4 +86,19 @@ if __name__ == '__main__':
         table = json.loads(line)
         tdf = wikisql_table_to_df(table)
         print(tdf)
+
+        #Create table embeddings
         create_table_emb(tdf)
+
+        #Load table embeddings
+        words_tab, vec_tab = load_vectors("example.emb", maxload=-1)
+        words_tab_set = set(words_tab)
+        idx_tab = idx(words_tab)
+
+        #Find anchor words
+        anchors = words_tab_set & words_pre_set #Common words are the intersection
+        print(f"Anchor words: {anchors}")
+        pairs = [(idx_tab[w], idx_pre[w]) for w in anchors]
+
+        #Select train vector pairs (vector anchors)
+        X_src, Y_tgt = select_vectors_from_pairs(vec_tab, vec_pre, pairs)
