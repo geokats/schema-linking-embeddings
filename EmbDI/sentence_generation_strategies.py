@@ -153,7 +153,10 @@ def generate_walks(parameters, graph, intersection=None):
     # ########### Random walks ############
     # print('Generating random walks.')
 
-    walks_file = 'pipeline/walks/' + parameters['output_file'] + '.walks'
+    if parameters.get('walks_file') != None:
+        walks_file = parameters['walks_file']
+    else:
+        walks_file = 'pipeline/walks/' + parameters['output_file'] + '.walks'
 
     if parameters['write_walks']: fp_walks = open(walks_file, 'w')
     t2 = datetime.datetime.now()

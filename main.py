@@ -3,7 +3,7 @@ import argparse
 import random
 import pandas as pd
 
-from edgelist import EdgeList
+from EmbDI.edgelist import EdgeList
 from EmbDI.utils import *
 from EmbDI.graph import graph_generation
 from EmbDI.sentence_generation_strategies import random_walks_generation
@@ -43,6 +43,7 @@ if __name__ == '__main__':
         # Default parameters
         configuration = {
             'walks_strategy': 'basic',
+            'walks_file' : 'example.walks',
             'flatten': 'all',
             'input_file': 'example.edgelist',
             'n_sentences': 'default',
