@@ -108,6 +108,8 @@ def align_embeddings(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg
     nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
     print("[final] NN = %.4f - Coverage = %.4f" % (nnacc, len(src2tgt) / lexicon_size))
 
+    return R
+
 
 ###### MAIN ######
 if __name__ == '__main__':
@@ -154,7 +156,7 @@ if __name__ == '__main__':
         pairs = pairs[:params.maxsup]
 
     #Run alignment algorithm
-    align_embeddings(x_src, x_tgt, pairs,
+    R = align_embeddings(x_src, x_tgt, pairs,
           knn=params.knn, maxneg=params.maxneg, model=params.model, reg=params.reg,
           lr=params.lr, niter=params.niter, sgd=params.sgd, batchsize=params.batchsize
          )
