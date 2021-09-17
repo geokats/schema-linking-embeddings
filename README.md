@@ -1,6 +1,8 @@
 # Locally Aligned Embeddings for Schema Linking
 
 ## Data
+
+### WikiSQL Dataset
 We use the WikiSQL dataset, which has been copied in our repository from the
 authors' original repository. To unpack use:
 
@@ -8,14 +10,12 @@ authors' original repository. To unpack use:
 tar xvjf data.tar.bz2
 ```
 
-```
-import nltk
-nltk.download('punkt')
-```
+### Pre-trained Word embeddings
+A set of pre-trained word embedding vectors is needed to run the program.
+These can be downloaded from the following links:
 
-## Pre-trained Word embeddings
-
-Pre-trained word2vec embeddings, trained on Wikipedia, be downloaded from [here](https://wikipedia2vec.github.io/wikipedia2vec/pretrained/).
+- [FastText](https://fasttext.cc/docs/en/english-vectors.html)
+- [Word2Vec](https://wikipedia2vec.github.io/wikipedia2vec/pretrained/)
 
 
 ## Acknowledgments
