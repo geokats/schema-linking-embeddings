@@ -58,7 +58,7 @@ def proj_spectral(R):
     s[s < 0] = 0
     return np.dot(U, np.dot(np.diag(s), V))
 
-def align_embeddings(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg=0.0 , lr=1.0, niter=10, sgd=False, batchsize=10000):
+def align_embeddings(x_src, x_tgt, pairs, src2tgt=None, knn=10, maxneg=200000, model=None, reg=0.0 , lr=1.0, niter=10, sgd=False, batchsize=10000):
     # selecting training vector  pairs
     X_src, Y_tgt = select_vectors_from_pairs(x_src, x_tgt, pairs)
 
@@ -68,9 +68,10 @@ def align_embeddings(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg
 
     # initialization:
     R = procrustes(X_src, Y_tgt)
-    nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
-    print("[init -- Procrustes] NN: %.4f"%(nnacc))
-    sys.stdout.flush()
+    if src2tgt != None:
+        nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
+        print("[init -- Procrustes] NN: %.4f"%(nnacc))
+        sys.stdout.flush()
 
     # optimization
     fold, Rold = 0, []
@@ -102,11 +103,13 @@ def align_embeddings(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg
         fold, Rold = f, R
 
         if (it > 0 and it % 10 == 0) or it == niter:
-            nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
-            print("[it=%d] NN = %.4f - Coverage = %.4f" % (it, nnacc, len(src2tgt) / lexicon_size))
+            if src2tgt != None:
+                nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
+                print("[it=%d] NN = %.4f - Coverage = %.4f" % (it, nnacc, len(src2tgt) / lexicon_size))
 
-    nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
-    print("[final] NN = %.4f - Coverage = %.4f" % (nnacc, len(src2tgt) / lexicon_size))
+    if src2tgt != None:
+        nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
+        print("[final] NN = %.4f - Coverage = %.4f" % (nnacc, len(src2tgt) / lexicon_size))
 
     return R
 
@@ -156,7 +159,7 @@ if __name__ == '__main__':
         pairs = pairs[:params.maxsup]
 
     #Run alignment algorithm
-    R = align_embeddings(x_src, x_tgt, pairs,
+    R = align_embeddings(x_src, x_tgt, pairs, src2tgt=src2tgt,
           knn=params.knn, maxneg=params.maxneg, model=params.model, reg=params.reg,
           lr=params.lr, niter=params.niter, sgd=params.sgd, batchsize=params.batchsize
          )

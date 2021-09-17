@@ -99,8 +99,8 @@ if __name__ == '__main__':
         #Find anchor words
         anchors = words_tab_set & words_pre_set #Common words are the intersection
         print(f"Anchor words: {anchors}")
-        pairs = [(idx_tab[w], idx_pre[w]) for w in anchors]
+        pairs = [(idx_pre[w], idx_tab[w]) for w in anchors]
 
         #Align pre-trained vectors to the table embedding space
         print("Aligning...")
-        align_embeddings(vec_pre, vec_tab, pairs)
+        R = align_embeddings(vec_pre, vec_tab, pairs)
