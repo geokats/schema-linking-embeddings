@@ -9,7 +9,8 @@ from EmbDI.graph import graph_generation
 from EmbDI.sentence_generation_strategies import random_walks_generation
 from EmbDI.embeddings import learn_embeddings
 
-from alignment.utils import *
+from alignment.utils import load_vectors, idx, select_vectors_from_pairs
+from alignment.align import align_embeddings
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__,
@@ -100,5 +101,6 @@ if __name__ == '__main__':
         print(f"Anchor words: {anchors}")
         pairs = [(idx_tab[w], idx_pre[w]) for w in anchors]
 
-        #Select train vector pairs (vector anchors)
-        X_src, Y_tgt = select_vectors_from_pairs(vec_tab, vec_pre, pairs)
+        #Align pre-trained vectors to the table embedding space
+        print("Aligning...")
+        align_embeddings(vec_pre, vec_tab, pairs)

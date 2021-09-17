@@ -25,34 +25,8 @@
 
 import numpy as np
 import argparse
-from utils import *
+from .utils import *
 import sys
-
-parser = argparse.ArgumentParser(description='RCSLS for supervised word alignment')
-
-parser.add_argument("--src_emb", type=str, default='', help="Load source embeddings")
-parser.add_argument("--tgt_emb", type=str, default='', help="Load target embeddings")
-parser.add_argument('--center', action='store_true', help='whether to center embeddings or not')
-
-parser.add_argument("--dico_train", type=str, default='', help="train dictionary")
-parser.add_argument("--dico_test", type=str, default='', help="validation dictionary")
-
-parser.add_argument("--output", type=str, default='', help="where to save aligned embeddings")
-
-parser.add_argument("--knn", type=int, default=10, help="number of nearest neighbors in RCSL/CSLS")
-parser.add_argument("--maxneg", type=int, default=200000, help="Maximum number of negatives for the Extended RCSLS")
-parser.add_argument("--maxsup", type=int, default=-1, help="Maximum number of training examples")
-parser.add_argument("--maxload", type=int, default=200000, help="Maximum number of loaded vectors")
-
-parser.add_argument("--model", type=str, default="none", help="Set of constraints: spectral or none")
-parser.add_argument("--reg", type=float, default=0.0 , help='regularization parameters')
-
-parser.add_argument("--lr", type=float, default=1.0, help='learning rate')
-parser.add_argument("--niter", type=int, default=10, help='number of iterations')
-parser.add_argument('--sgd', action='store_true', help='use sgd')
-parser.add_argument("--batchsize", type=int, default=10000, help="batch size for sgd")
-
-params = parser.parse_args()
 
 ###### SPECIFIC FUNCTIONS ######
 # functions specific to RCSLS
@@ -84,7 +58,7 @@ def proj_spectral(R):
     s[s < 0] = 0
     return np.dot(U, np.dot(np.diag(s), V))
 
-def align(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg=0.0 , lr=1.0, niter=10, sgd=False, batchsize=10000):
+def align_embeddings(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg=0.0 , lr=1.0, niter=10, sgd=False, batchsize=10000):
     # selecting training vector  pairs
     X_src, Y_tgt = select_vectors_from_pairs(x_src, x_tgt, pairs)
 
@@ -136,33 +110,59 @@ def align(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg=0.0 , lr=1
 
 
 ###### MAIN ######
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='RCSLS for supervised word alignment')
 
-# load word embeddings
-words_tgt, x_tgt = load_vectors(params.tgt_emb, maxload=params.maxload, center=params.center)
-words_src, x_src = load_vectors(params.src_emb, maxload=params.maxload, center=params.center)
+    parser.add_argument("--src_emb", type=str, default='', help="Load source embeddings")
+    parser.add_argument("--tgt_emb", type=str, default='', help="Load target embeddings")
+    parser.add_argument('--center', action='store_true', help='whether to center embeddings or not')
 
-# load validation bilingual lexicon
-src2tgt, lexicon_size = load_lexicon(params.dico_test, words_src, words_tgt)
+    parser.add_argument("--dico_train", type=str, default='', help="train dictionary")
+    parser.add_argument("--dico_test", type=str, default='', help="validation dictionary")
 
-# word --> vector indices
-idx_src = idx(words_src)
-idx_tgt = idx(words_tgt)
+    parser.add_argument("--output", type=str, default='', help="where to save aligned embeddings")
 
-# load train bilingual lexicon
-pairs = load_pairs(params.dico_train, idx_src, idx_tgt)
-if params.maxsup > 0 and params.maxsup < len(pairs):
-    pairs = pairs[:params.maxsup]
+    parser.add_argument("--knn", type=int, default=10, help="number of nearest neighbors in RCSL/CSLS")
+    parser.add_argument("--maxneg", type=int, default=200000, help="Maximum number of negatives for the Extended RCSLS")
+    parser.add_argument("--maxsup", type=int, default=-1, help="Maximum number of training examples")
+    parser.add_argument("--maxload", type=int, default=200000, help="Maximum number of loaded vectors")
 
-#Run alignment algorithm
-align(x_src, x_tgt, pairs,
-      knn=params.knn, maxneg=params.maxneg, model=params.model, reg=params.reg,
-      lr=params.lr, niter=params.niter, sgd=params.sgd, batchsize=params.batchsize
-     )
+    parser.add_argument("--model", type=str, default="none", help="Set of constraints: spectral or none")
+    parser.add_argument("--reg", type=float, default=0.0 , help='regularization parameters')
 
-if params.output != "":
-    print("Saving all aligned vectors at %s" % params.output)
-    words_full, x_full = load_vectors(params.src_emb, maxload=-1, center=params.center, verbose=False)
-    x = np.dot(x_full, R.T)
-    x /= np.linalg.norm(x, axis=1)[:, np.newaxis] + 1e-8
-    save_vectors(params.output, x, words_full)
-    save_matrix(params.output + "-mat",  R)
+    parser.add_argument("--lr", type=float, default=1.0, help='learning rate')
+    parser.add_argument("--niter", type=int, default=10, help='number of iterations')
+    parser.add_argument('--sgd', action='store_true', help='use sgd')
+    parser.add_argument("--batchsize", type=int, default=10000, help="batch size for sgd")
+
+    params = parser.parse_args()
+
+    # load word embeddings
+    words_tgt, x_tgt = load_vectors(params.tgt_emb, maxload=params.maxload, center=params.center)
+    words_src, x_src = load_vectors(params.src_emb, maxload=params.maxload, center=params.center)
+
+    # load validation bilingual lexicon
+    src2tgt, lexicon_size = load_lexicon(params.dico_test, words_src, words_tgt)
+
+    # word --> vector indices
+    idx_src = idx(words_src)
+    idx_tgt = idx(words_tgt)
+
+    # load train bilingual lexicon
+    pairs = load_pairs(params.dico_train, idx_src, idx_tgt)
+    if params.maxsup > 0 and params.maxsup < len(pairs):
+        pairs = pairs[:params.maxsup]
+
+    #Run alignment algorithm
+    align_embeddings(x_src, x_tgt, pairs,
+          knn=params.knn, maxneg=params.maxneg, model=params.model, reg=params.reg,
+          lr=params.lr, niter=params.niter, sgd=params.sgd, batchsize=params.batchsize
+         )
+
+    if params.output != "":
+        print("Saving all aligned vectors at %s" % params.output)
+        words_full, x_full = load_vectors(params.src_emb, maxload=-1, center=params.center, verbose=False)
+        x = np.dot(x_full, R.T)
+        x /= np.linalg.norm(x, axis=1)[:, np.newaxis] + 1e-8
+        save_vectors(params.output, x, words_full)
+        save_matrix(params.output + "-mat",  R)
