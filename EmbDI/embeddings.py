@@ -44,22 +44,22 @@ def learn_embeddings(output_embeddings_file, walks, write_walks, dimensions, win
         else:
             raise ValueError('Unknown learning method {}'.format(learning_method))
         if write_walks:
-            model = Doc2Vec(corpus_file=walks, size=dimensions, window=window_size, min_count=2, sg=sg,
+            model = Doc2Vec(corpus_file=walks, vector_size=dimensions, window=window_size, min_count=2, sg=sg,
                             workers=workers,
                             sample=sampling_factor)
             model.wv.save_word2vec_format(output_embeddings_file, binary=False)
         else:
-            model = Doc2Vec(sentences=walks, size=dimensions, window=window_size, min_count=2, sg=sg, workers=workers,
+            model = Doc2Vec(sentences=walks, vector_size=dimensions, window=window_size, min_count=2, sg=sg, workers=workers,
                             sample=sampling_factor)
             model.wv.save_word2vec_format(output_embeddings_file, binary=False)
     elif training_algorithm == 'fasttext':
         print('Using Fasttext')
         if write_walks:
-            model = FastText(corpus_file=walks, window=window_size, min_count=2, workers=workers, size=dimensions)
-            model.wv.save(output_embeddings_file)
+            model = FastText(corpus_file=walks, window=window_size, min_count=2, workers=workers, vector_size=dimensions)
+            model.wv.save_word2vec_format(output_embeddings_file)
         else:
-            model = FastText(sentences=walks, size=dimensions, workers=workers, min_count=2, window=window_size)
-            model.wv.save(output_embeddings_file)
+            model = FastText(sentences=walks, vector_size=dimensions, workers=workers, min_count=2, window=window_size)
+            model.wv.save_word2vec_format(output_embeddings_file)
 
 
 def return_combined(row, wv, n_dimensions):

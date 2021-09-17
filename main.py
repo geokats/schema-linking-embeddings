@@ -36,9 +36,6 @@ if __name__ == '__main__':
         info = None
 
         edgelist = EdgeList(tdf, edgefile, prefixes, info, flatten=True)
-        edge_dict = edgelist.convert_to_dict()
-        # for k,v in edge_dict.items():
-        #     print(f"{k}: {v}")
 
         # Default parameters
         configuration = {
@@ -58,8 +55,6 @@ if __name__ == '__main__':
             'mlflow': False
         }
 
-        # df = pd.read_csv('pipeline/datasets/small_example.csv')
-        #
         prefixes, edgelist = read_edgelist(configuration['input_file'])
 
         graph = graph_generation(configuration, edgelist, prefixes, dictionary=None)
@@ -69,5 +64,7 @@ if __name__ == '__main__':
         walks = random_walks_generation(configuration, graph)
 
 
-        learn_embeddings("example.emb", "pipeline/walks/example.walks", True, 100, 15, training_algorithm='word2vec',
-                             learning_method='skipgram', sampling_factor=0.001)
+        learn_embeddings("example.emb", "example.walks", True, 100, 15,
+                         training_algorithm='fasttext',
+                         learning_method='skipgram', sampling_factor=0.001
+                        )
