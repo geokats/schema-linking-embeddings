@@ -84,6 +84,56 @@ def proj_spectral(R):
     s[s < 0] = 0
     return np.dot(U, np.dot(np.diag(s), V))
 
+def align(x_src, x_tgt, pairs, knn=10, maxneg=200000, model=None, reg=0.0 , lr=1.0, niter=10, sgd=False, batchsize=10000):
+    # selecting training vector  pairs
+    X_src, Y_tgt = select_vectors_from_pairs(x_src, x_tgt, pairs)
+
+    # adding negatives for RCSLS
+    Z_src = x_src[:maxneg, :]
+    Z_tgt = x_tgt[:maxneg, :]
+
+    # initialization:
+    R = procrustes(X_src, Y_tgt)
+    nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
+    print("[init -- Procrustes] NN: %.4f"%(nnacc))
+    sys.stdout.flush()
+
+    # optimization
+    fold, Rold = 0, []
+    niter, lr = niter, lr
+
+    for it in range(0, niter + 1):
+        if lr < 1e-4:
+            break
+
+        if sgd:
+            indices = np.random.choice(X_src.shape[0], size=batchsize, replace=False)
+            f, df = rcsls(X_src[indices, :], Y_tgt[indices, :], Z_src, Z_tgt, R, knn)
+        else:
+            f, df = rcsls(X_src, Y_tgt, Z_src, Z_tgt, R, knn)
+
+        if reg > 0:
+            R *= (1 - lr * reg)
+        R -= lr * df
+        if model == "spectral":
+            R = proj_spectral(R)
+
+        print("[it=%d] f = %.4f" % (it, f))
+        sys.stdout.flush()
+
+        if f > fold and it > 0 and not sgd:
+            lr /= 2
+            f, R = fold, Rold
+
+        fold, Rold = f, R
+
+        if (it > 0 and it % 10 == 0) or it == niter:
+            nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
+            print("[it=%d] NN = %.4f - Coverage = %.4f" % (it, nnacc, len(src2tgt) / lexicon_size))
+
+    nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
+    print("[final] NN = %.4f - Coverage = %.4f" % (nnacc, len(src2tgt) / lexicon_size))
+
 
 ###### MAIN ######
 
@@ -103,54 +153,11 @@ pairs = load_pairs(params.dico_train, idx_src, idx_tgt)
 if params.maxsup > 0 and params.maxsup < len(pairs):
     pairs = pairs[:params.maxsup]
 
-# selecting training vector  pairs
-X_src, Y_tgt = select_vectors_from_pairs(x_src, x_tgt, pairs)
-
-# adding negatives for RCSLS
-Z_src = x_src[:params.maxneg, :]
-Z_tgt = x_tgt[:params.maxneg, :]
-
-# initialization:
-R = procrustes(X_src, Y_tgt)
-nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
-print("[init -- Procrustes] NN: %.4f"%(nnacc))
-sys.stdout.flush()
-
-# optimization
-fold, Rold = 0, []
-niter, lr = params.niter, params.lr
-
-for it in range(0, niter + 1):
-    if lr < 1e-4:
-        break
-
-    if params.sgd:
-        indices = np.random.choice(X_src.shape[0], size=params.batchsize, replace=False)
-        f, df = rcsls(X_src[indices, :], Y_tgt[indices, :], Z_src, Z_tgt, R, params.knn)
-    else:
-        f, df = rcsls(X_src, Y_tgt, Z_src, Z_tgt, R, params.knn)
-
-    if params.reg > 0:
-        R *= (1 - lr * params.reg)
-    R -= lr * df
-    if params.model == "spectral":
-        R = proj_spectral(R)
-
-    print("[it=%d] f = %.4f" % (it, f))
-    sys.stdout.flush()
-
-    if f > fold and it > 0 and not params.sgd:
-        lr /= 2
-        f, R = fold, Rold
-
-    fold, Rold = f, R
-
-    if (it > 0 and it % 10 == 0) or it == niter:
-        nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
-        print("[it=%d] NN = %.4f - Coverage = %.4f" % (it, nnacc, len(src2tgt) / lexicon_size))
-
-nnacc = compute_nn_accuracy(np.dot(x_src, R.T), x_tgt, src2tgt, lexicon_size=lexicon_size)
-print("[final] NN = %.4f - Coverage = %.4f" % (nnacc, len(src2tgt) / lexicon_size))
+#Run alignment algorithm
+align(x_src, x_tgt, pairs,
+      knn=params.knn, maxneg=params.maxneg, model=params.model, reg=params.reg,
+      lr=params.lr, niter=params.niter, sgd=params.sgd, batchsize=params.batchsize
+     )
 
 if params.output != "":
     print("Saving all aligned vectors at %s" % params.output)
