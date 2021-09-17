@@ -104,3 +104,7 @@ if __name__ == '__main__':
         #Align pre-trained vectors to the table embedding space
         print("Aligning...")
         R = align_embeddings(vec_pre, vec_tab, pairs)
+        print(R )
+
+        #Save alignment matrix
+        np.save("example-R.npy", R)
