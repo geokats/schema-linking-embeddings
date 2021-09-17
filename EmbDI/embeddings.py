@@ -53,7 +53,6 @@ def learn_embeddings(output_embeddings_file, walks, write_walks, dimensions, win
                             sample=sampling_factor)
             model.wv.save_word2vec_format(output_embeddings_file, binary=False)
     elif training_algorithm == 'fasttext':
-        print('Using Fasttext')
         if write_walks:
             model = FastText(corpus_file=walks, window=window_size, min_count=2, workers=workers, vector_size=dimensions)
             model.wv.save_word2vec_format(output_embeddings_file)

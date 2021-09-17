@@ -161,13 +161,13 @@ def generate_walks(parameters, graph, intersection=None):
     if parameters['write_walks']: fp_walks = open(walks_file, 'w')
     t2 = datetime.datetime.now()
     str_start_time = t2.strftime(TIME_FORMAT)
-    print(OUTPUT_FORMAT.format('Generating basic random walks.', str_start_time))
+    # print(OUTPUT_FORMAT.format('Generating basic random walks.', str_start_time))
     sentence_counter = 0
 
     count_cells = 0
 
     if random_walks_per_node > 0:
-        pbar = tqdm(desc='# Sentence generation progress: ', total=len(intersection) * random_walks_per_node)
+        # pbar = tqdm(desc='# Sentence generation progress: ', total=len(intersection) * random_walks_per_node)
         for cell in intersection:
             # if cell in intersection:
             r = []
@@ -189,40 +189,40 @@ def generate_walks(parameters, graph, intersection=None):
                 sentences += r
             sentence_counter += random_walks_per_node
             count_cells += 1
-            pbar.update(random_walks_per_node)
-        pbar.close()
+            # pbar.update(random_walks_per_node)
+        # pbar.close()
 
     needed = n_sentences - sentence_counter
     if needed > 0:
         t_comp = datetime.datetime.now()
         str_comp_time = t_comp.strftime(TIME_FORMAT)
-        print(OUTPUT_FORMAT.format('Completing fraction of random walks.', str_comp_time))
+        # print(OUTPUT_FORMAT.format('Completing fraction of random walks.', str_comp_time))
 
-        with tqdm(total=needed, desc='# Sentence generation progress: ') as pbar:
-            l_int = list(intersection)
-            for count_cells in range(needed):
-                cell = random.choice(l_int)
-                # if cell in intersection:
-                w = RandomWalk(graph.nodes, cell, sentence_length, backtrack, graph.uniform,
-                               repl_numbers=parameters['repl_numbers'],
-                               repl_strings=parameters['repl_strings'])
-                sen = [w.get_walk()]
+        # with tqdm(total=needed, desc='# Sentence generation progress: ') as pbar:
+        l_int = list(intersection)
+        for count_cells in range(needed):
+            cell = random.choice(l_int)
+            # if cell in intersection:
+            w = RandomWalk(graph.nodes, cell, sentence_length, backtrack, graph.uniform,
+                           repl_numbers=parameters['repl_numbers'],
+                           repl_strings=parameters['repl_strings'])
+            sen = [w.get_walk()]
 
-                for s in sen:
-                    if parameters['write_walks']:
-                        ws = ' '.join(s)
-                        s = ws + '\n'
-                        fp_walks.write(s)
-                    else:
-                        sentences += s
-                sentence_counter += len(sen)
-                pbar.update(1)
+            for s in sen:
+                if parameters['write_walks']:
+                    ws = ' '.join(s)
+                    s = ws + '\n'
+                    fp_walks.write(s)
+                else:
+                    sentences += s
+            sentence_counter += len(sen)
+                # pbar.update(1)
 
     sentence_distribution['basic'] = sentence_counter
     start_time = datetime.datetime.now()
     str_start_time = start_time.strftime(TIME_FORMAT)
-    print(OUTPUT_FORMAT.format('Generation of random walks completed', str_start_time))
-    print()
+    # print(OUTPUT_FORMAT.format('Generation of random walks completed', str_start_time))
+    # print()
 
     if parameters['write_walks']:
         fp_walks.close()
@@ -270,7 +270,7 @@ def random_walks_generation(configuration, graph):
         else:
             print('# Number of common values: {}'.format(len(intersection)))
     else:
-        print('# Skipping search of overlapping values. ')
+        # print('# Skipping search of overlapping values. ')
         intersection = None
     # intersection = None
 

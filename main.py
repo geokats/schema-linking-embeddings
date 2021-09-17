@@ -78,16 +78,6 @@ def create_table_emb(tdf, emb_file):
                      learning_method='skipgram', sampling_factor=0.001
                     )
 
-# Disable printing
-def blockPrint():
-    sys.stdout = open(os.devnull, 'w')
-    sys.stderr = open(os.devnull, 'w')
-
-# Restore printing
-def enablePrint():
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
-
 
 if __name__ == '__main__':
     args = parse_args()
@@ -107,7 +97,7 @@ if __name__ == '__main__':
     #NOTE: In our case the pre-trained embeddings are the source embeddings, while
     #      the table embeddings are the target embeddings, and we want to find
     #      a mapping from the table embeddings space to the pre-trained space
-    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=-1)
+    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=-1, verbose=False)
     words_pre_set = set(words_pre)
     idx_pre = idx(words_pre)
 
@@ -125,11 +115,10 @@ if __name__ == '__main__':
             matrix_out_file = os.path.join(args.output_dir, f"{table_id}.R.npy")
 
             #Create table embeddings
-            blockPrint() #Stop EmbDI and alignment libraries from printing
             create_table_emb(tdf, emb_out_file)
 
             #Load table embeddings
-            words_tab, vec_tab = load_vectors(emb_out_file, maxload=-1)
+            words_tab, vec_tab = load_vectors(emb_out_file, maxload=-1, verbose=False)
             words_tab_set = set(words_tab)
             idx_tab = idx(words_tab)
 
@@ -139,7 +128,6 @@ if __name__ == '__main__':
 
             #Align pre-trained vectors to the table embedding space
             R = align_embeddings(vec_pre, vec_tab, pairs)
-            enablePrint() #Restore printing
 
             #Save alignment matrix
             np.save(matrix_out_file, R)

@@ -263,7 +263,8 @@ class EdgeList:
         with open(edgefile, 'w') as fp:
             fp.write(','.join(prefixes) + '\n')
             # Iterate over all rows in the df
-            for idx, r in tqdm(df.iterrows()):
+            # for idx, r in tqdm(df.iterrows()):
+            for idx, r in df.iterrows():
                 rid = 'idx__' + str(idx)
 
                 # Remove nans from the row
@@ -313,10 +314,10 @@ class EdgeList:
                     except KeyError:
                         continue
 
-                print('\r# {:0.1f} - {:}/{:} tuples'.format(count_rows / len(df) * 100, count_rows, len(df)), end='')
+                # print('\r# {:0.1f} - {:}/{:} tuples'.format(count_rows / len(df) * 100, count_rows, len(df)), end='')
                 count_rows += 1
 
-        print('')
+        # print('')
 
     def get_edgelist(self):
         return self.edgelist

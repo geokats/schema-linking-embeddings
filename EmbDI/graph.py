@@ -150,7 +150,7 @@ class Graph:
         :return: n_sentences
         """
         n = len(self.nodes) * factor // sentence_length
-        print('# {} sentences will be generated.'.format(n))
+        # print('# {} sentences will be generated.'.format(n))
         return n
 
     def add_edge(self, node_from, node_to, weight_forward, weight_back=None):
@@ -253,7 +253,7 @@ class Graph:
         self.uniform = True
 
         if flatten == 'all':
-            print('# Flatten = all, all strings will be expanded.')
+            # print('# Flatten = all, all strings will be expanded.')
             self.to_flatten = self.node_classes
         elif len(self.to_flatten) > 0:
             print('# Expanding columns: [{}].'.format(', '.join(self.to_flatten)))
@@ -263,7 +263,8 @@ class Graph:
             print('# All values will be tokenized. ')
 
         # pbar = tqdm()
-        for line in tqdm(edgelist, desc='# Loading edgelist_file.'):
+        # for line in tqdm(edgelist, desc='# Loading edgelist_file.'):
+        for line in edgelist:
             n1 = line[0]
             n2 = line[1]
 
@@ -335,7 +336,8 @@ class Graph:
         to_delete = []
         if len(self.nodes) == 0:
             raise ValueError(f'No nodes found in edgelist!')
-        for node_name in tqdm(self.nodes, desc='# Preparing aliased randomizer.'):
+        # for node_name in tqdm(self.nodes, desc='# Preparing aliased randomizer.'):
+        for node_name in self.nodes:
             if self.nodes[node_name].node_class['isroot']:
                 self.cell_list.append(node_name)
             if len(self.nodes[node_name].neighbors) == 0:
@@ -384,7 +386,7 @@ def graph_generation(configuration, edgelist, prefixes, dictionary=None):
         flatten = []
 
     t_start = datetime.datetime.now()
-    print(OUTPUT_FORMAT.format('Starting graph construction', t_start.strftime(TIME_FORMAT)))
+    # print(OUTPUT_FORMAT.format('Starting graph construction', t_start.strftime(TIME_FORMAT)))
     if dictionary:
         for __ in edgelist:
             l = []
@@ -397,8 +399,8 @@ def graph_generation(configuration, edgelist, prefixes, dictionary=None):
     g = Graph(edgelist=edgelist, prefixes=prefixes, sim_list=list_sim, flatten=flatten)
     t_end = datetime.datetime.now()
     dt = t_end - t_start
-    print()
-    print(OUTPUT_FORMAT.format('Graph construction complete', t_end.strftime(TIME_FORMAT)))
-    print(OUTPUT_FORMAT.format('Time required to build graph:', f'{dt.total_seconds():.2f} seconds.'))
+    # print()
+    # print(OUTPUT_FORMAT.format('Graph construction complete', t_end.strftime(TIME_FORMAT)))
+    # print(OUTPUT_FORMAT.format('Time required to build graph:', f'{dt.total_seconds():.2f} seconds.'))
     metrics.time_graph = dt.total_seconds()
     return g

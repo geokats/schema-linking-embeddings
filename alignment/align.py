@@ -93,8 +93,8 @@ def align_embeddings(x_src, x_tgt, pairs, src2tgt=None, knn=10, maxneg=200000, m
         if model == "spectral":
             R = proj_spectral(R)
 
-        print("[it=%d] f = %.4f" % (it, f))
-        sys.stdout.flush()
+        # print("[it=%d] f = %.4f" % (it, f))
+        # sys.stdout.flush()
 
         if f > fold and it > 0 and not sgd:
             lr /= 2
