@@ -23,6 +23,8 @@ def parse_args():
 
     parser.add_argument("-t", "--tables_file", required=True, help="Input WikiSQL .tables.jsonl file")
     parser.add_argument("-e", "--embeddings_file", required=True, help="Pre-trained embeddings file")
+    parser.add_argument("-d", "--embeddings_dimension", required=True, help="Dimension of pre-trained embeddings")
+    parser.add_argument("-a", "--embeddings_algorithm", required=True, help="Algorithm to use for training local embeddings")
     parser.add_argument("-o", "--output_dir", required=True, help="Output directory to save the table embeddings and alignment matrices")
 
 
@@ -35,7 +37,7 @@ def wikisql_table_to_df(table):
     df = df.replace(',','', regex=True)
     return df
 
-def create_table_emb(tdf, emb_file):
+def create_table_emb(tdf, emb_file, emb_alg, emb_dim):
     """
     Use EmbDI to create table embeddings for a WikISQL table
 
@@ -75,8 +77,8 @@ def create_table_emb(tdf, emb_file):
     walks = random_walks_generation(configuration, graph)
 
 
-    learn_embeddings(emb_file, walks_file, True, 300, 15,
-                     training_algorithm='fasttext',
+    learn_embeddings(emb_file, walks_file, True, emb_dim, 15,
+                     training_algorithm=emb_alg,
                      learning_method='skipgram', sampling_factor=0.001
                     )
 
@@ -117,7 +119,7 @@ if __name__ == '__main__':
             matrix_out_file = os.path.join(args.output_dir, f"{table_id}.R.npy")
 
             #Create table embeddings
-            create_table_emb(tdf, emb_out_file)
+            create_table_emb(tdf, emb_out_file, args.embeddings_algorithm, args.embeddings_dimension)
 
             #Load table embeddings
             words_tab, vec_tab = load_vectors(emb_out_file, maxload=-1, verbose=False)
