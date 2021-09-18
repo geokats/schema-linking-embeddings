@@ -57,3 +57,16 @@ def wikisql_table_to_df(table):
     df = pd.DataFrame(columns=header, data=table['rows'])
     df = df.replace(',','', regex=True)
     return df
+
+def wikisql_redable(sql, table):
+    agg_ops = ['', 'MAX', 'MIN', 'COUNT', 'SUM', 'AVG']
+    cond_ops = ['=', '>', '<', 'OP']
+
+    sql_readable = f"SELECT {agg_ops[sql['agg']]} {table['header'][sql['sel']]} FROM table"
+    if sql['conds']:
+        sql_readable += f" WHERE"
+        for cond in sql['conds']:
+            col_id, cond_op, val = cond
+            sql_readable += f" {table['header'][col_id]} {cond_ops[cond_op]} {val}"
+
+    return sql_readable

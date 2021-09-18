@@ -6,24 +6,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm.auto import tqdm
 
+from utils import wikisql_redable
+
 N_MAX = 7
-agg_ops = ['', 'MAX', 'MIN', 'COUNT', 'SUM', 'AVG']
-cond_ops = ['=', '>', '<', 'OP']
 
 def jaccard_similarity(list1, list2):
     intersection = len(list(set(list1).intersection(list2)))
     union = (len(set(list1)) + len(set(list2))) - intersection
     return float(intersection) / union
-
-def wikisql_redable(sql, table):
-    sql_readable = f"SELECT {agg_ops[sql['agg']]} {table['header'][sql['sel']]} FROM table"
-    if sql['conds']:
-        sql_readable += f" WHERE"
-        for cond in sql['conds']:
-            col_id, cond_op, val = cond
-            sql_readable += f" {table['header'][col_id]} {cond_ops[cond_op]} {val}"
-
-    return sql_readable
 
 def find_name_link(col_name, n_grams, n_grams_tok):
     link = None
