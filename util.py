@@ -70,3 +70,8 @@ def wikisql_redable(sql, table):
             sql_readable += f" {table['header'][col_id]} {cond_ops[cond_op]} {val}"
 
     return sql_readable
+
+def vector_align(x, R):
+    x_new = np.dot(x, R.T)
+    x_new /= np.linalg.norm(x, axis=1)[:, np.newaxis] + 1e-8
+    return x_new
