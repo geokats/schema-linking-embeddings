@@ -78,13 +78,19 @@ def vector_align(x, R):
 
 def get_col_matches(tokens, tdf, kv, threshold=0.5):
     column_tokens = []
-    for i, col in enumerate(tdf.columns):
-    #     column_tokens.append([f"cid__{i}"] + nltk.word_tokenize(col))
-        column_tokens.append([f"cid__{i}"] + col.split(' '))
+    for col_id, col in enumerate(tdf.columns):
+        cur_col = [f"cid__{col_id}"] + col.split(' ')
+
+        cur_col = [x for x in cur_col if kv.has_index_for(x)]
+
+        column_tokens.append(cur_col)
 
     matches = []
 
     for token in tokens:
+        if not kv.has_index_for(token):
+            continue
+
         min_dist = 1000
         best_col = None
         for col_id, col in enumerate(column_tokens):
@@ -107,11 +113,16 @@ def get_row_matches(tokens, tdf, kv, threshold=0.5):
         for val in row.values:
             cur_row.extend(val.split(' '))
 
+        cur_row = [x for x in cur_row if kv.has_index_for(x)]
+
         row_tokens.append(cur_row)
 
     matches = []
 
     for token in tokens:
+        if not kv.has_index_for(token):
+            continue
+
         min_dist = 1000
         best_row = None
         for row_id, row in enumerate(row_tokens):
