@@ -76,7 +76,7 @@ def vector_align(x, R):
     x_new /= np.linalg.norm(x, axis=1)[:, np.newaxis] + 1e-8
     return x_new
 
-def get_col_matches(tokens, tdf, model, threshold=0.5):
+def get_col_matches(tokens, tdf, kv, threshold=0.5):
     column_tokens = []
     for i, col in enumerate(tdf.columns):
     #     column_tokens.append([f"cid__{i}"] + nltk.word_tokenize(col))
@@ -88,7 +88,7 @@ def get_col_matches(tokens, tdf, model, threshold=0.5):
         min_dist = 1000
         best_col = None
         for col_id, col in enumerate(column_tokens):
-            dists = model.wv.distances(token, col)
+            dists = kv.distances(token, col)
             dist = dists.mean()
             if best_col is None or dist < min_dist:
                 min_dist = dist
@@ -100,7 +100,7 @@ def get_col_matches(tokens, tdf, model, threshold=0.5):
 
     return matches
 
-def get_row_matches(tokens, tdf, model, threshold=0.5):
+def get_row_matches(tokens, tdf, kv, threshold=0.5):
     row_tokens = []
     for i, row in tdf.iterrows():
         cur_row = [f"idx__{i}"]
@@ -115,7 +115,7 @@ def get_row_matches(tokens, tdf, model, threshold=0.5):
         min_dist = 1000
         best_row = None
         for row_id, row in enumerate(row_tokens):
-            dists = model.wv.distances(token, row)
+            dists = kv.distances(token, row)
             dist = dists.mean()
             if best_row is None or dist < min_dist:
                 min_dist = dist
@@ -127,16 +127,16 @@ def get_row_matches(tokens, tdf, model, threshold=0.5):
 
     return matches
 
-def add_aligned_vectors(model, tokens, vec_pre, idx_pre, R):
+def add_aligned_vectors(kv, tokens, vec_pre, idx_pre, R):
     add_words = []
     add_vecs = []
 
     for token in tokens:
-        if not model.wv.has_index_for(token):
+        if not kv.has_index_for(token):
             add_words.append(token)
             add_vecs.append(vec_pre[idx_pre[token]])
 
     aligned_vecs = vector_align(np.array(add_vecs), R)
-    model.wv.add_vectors(add_words, aligned_vecs, replace=False)
+    kv.add_vectors(add_words, aligned_vecs, replace=False)
 
-    return model
+    return kv

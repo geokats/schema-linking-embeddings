@@ -5,6 +5,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+from gensim.models import KeyedVectors
 from tqdm.auto import tqdm
 
 from alignment.utils import load_vectors, idx, select_vectors_from_pairs
@@ -45,9 +46,10 @@ if __name__ == '__main__':
     #NOTE: In our case the pre-trained embeddings are the source embeddings, while
     #      the table embeddings are the target embeddings, and we want to find
     #      a mapping from the table embeddings space to the pre-trained space
-    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=-1, verbose=False)
-    words_pre_set = set(words_pre)
-    idx_pre = idx(words_pre)
+    kv_pre = KeyedVectors.load_word2vec_format(args.embeddings_file)
+    vec_pre = kv_pre.vectors
+    words_pre_set = set(kv_pre.key_to_index.keys())
+    idx_pre = kv_pre.key_to_index
 
     with open(args.tables_file, 'r') as f:
         #Read a table
@@ -66,9 +68,10 @@ if __name__ == '__main__':
             model = create_table_emb(tdf, emb_out_file, args.embeddings_algorithm, args.embeddings_dimension, TEMP_DIR)
 
             #Load table embeddings
-            vec_tab = model.wv.vectors
-            words_tab_set = set(model.wv.key_to_index.keys())
-            idx_tab = model.wv.key_to_index
+            kv_tab = model.wv
+            vec_tab = kv_tab.vectors
+            words_tab_set = set(kv_tab.key_to_index.keys())
+            idx_tab = kv_tab.key_to_index
 
             #Find anchor words
             anchors = words_tab_set & words_pre_set #Common words are the intersection
