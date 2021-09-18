@@ -1,4 +1,4 @@
-gensim
+gensim == 4.0.0
 datasketch
 strsim
 scikit-learn
