@@ -18,8 +18,6 @@ def create_table_emb(tdf, emb_file, emb_alg, emb_dim, temp_dir):
     prefixes = ['3$__tn', '3$__tt', '5$__idx', '1$__cid']
     info = None
 
-    edgelist = EdgeList(tdf, edge_file, prefixes, info, flatten=True)
-
     # Default parameters
     configuration = {
         'walks_strategy': 'basic',
@@ -37,14 +35,15 @@ def create_table_emb(tdf, emb_file, emb_alg, emb_dim, temp_dir):
         'mlflow': False
     }
 
+    #Create edgelist
+    EdgeList(tdf, edge_file, prefixes, info, flatten=True)
     prefixes, edgelist = read_edgelist(configuration['input_file'])
 
     graph = graph_generation(configuration, edgelist, prefixes, dictionary=None)
     if configuration['n_sentences'] == 'default':
         #  Compute the number of sentences according to the rule of thumb.
         configuration['n_sentences'] = graph.compute_n_sentences(int(configuration['sentence_length']))
-    walks = random_walks_generation(configuration, graph)
-
+    random_walks_generation(configuration, graph)
 
     model = learn_embeddings(emb_file, walks_file, True, emb_dim, 15,
                      training_algorithm=emb_alg,
