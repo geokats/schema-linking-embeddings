@@ -126,3 +126,17 @@ def get_row_matches(tokens, tdf, model, threshold=0.5):
             matches.append((token, best_row))
 
     return matches
+
+def add_aligned_vectors(model, tokens, vec_pre, idx_pre, R):
+    add_words = []
+    add_vecs = []
+
+    for token in tokens:
+        if not model.wv.has_index_for(token):
+            add_words.append(token)
+            add_vecs.append(vec_pre[idx_pre[token]])
+
+    aligned_vecs = vector_align(np.array(add_vecs), R)
+    model.wv.add_vectors(add_words, aligned_vecs, replace=False)
+
+    return model
