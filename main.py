@@ -23,8 +23,8 @@ def parse_args():
 
     parser.add_argument("-t", "--tables_file", required=True, help="Input WikiSQL .tables.jsonl file")
     parser.add_argument("-e", "--embeddings_file", required=True, help="Pre-trained embeddings file")
-    parser.add_argument("-d", "--embeddings_dimension", required=True, help="Dimension of pre-trained embeddings")
-    parser.add_argument("-a", "--embeddings_algorithm", required=True, help="Algorithm to use for training local embeddings")
+    parser.add_argument("-d", "--embeddings_dimension", type=int, required=True, help="Dimension of pre-trained embeddings")
+    parser.add_argument("-a", "--embeddings_algorithm", choices=['word2vec', 'fasttext'], required=True, help="Algorithm to use for training local embeddings")
     parser.add_argument("-o", "--output_dir", required=True, help="Output directory to save the table embeddings and alignment matrices")
 
 
