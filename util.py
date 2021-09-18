@@ -101,10 +101,15 @@ def get_col_matches(tokens, tdf, kv, threshold=0.5):
                 best_col = col_id
 
 #         print(f"{token} -> {table['header'][best_col]} ({min_dist})")
-        if min_dist < threshold:
-            matches.append((token, best_col))
+        matches.append((token, best_col, min_dist))
 
-    return matches
+    #Keep all matches above threshold or atleast the best match
+    best_matches = [(token, col) for token, col, dist in matches if dist < threshold]
+    if len(best_matches) == 0:
+        min_dist = min([dist for token, col, dist in matches])
+        best_matches = [(token, col) for token, col, dist in matches if dist == min_dist]
+
+    return best_matches
 
 def get_row_matches(tokens, tdf, kv, threshold=0.5):
     row_tokens = []
