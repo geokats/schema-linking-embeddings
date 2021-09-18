@@ -270,7 +270,7 @@ class EdgeList:
                 # Remove nans from the row
                 row = r.dropna()
                 # Create a node for the current row id.
-                for col in df.columns:
+                for col_idx, col in enumerate(df.columns):
                     try:
                         og_value = row[col]
                         cell_value = self.convert_cell_value(og_value)
@@ -288,9 +288,11 @@ class EdgeList:
                                 smoothed_f = 1
                             n1 = rid
                             if col in numeric_columns:
-                                n2 = 'tn__' + split
+                                # n2 = 'tn__' + split
+                                n2 = 'tn__ ' + split
                             else:
-                                n2 = 'tt__' + split
+                                # n2 = 'tt__' + split
+                                n2 = 'tt__ ' + split
 
                             w1 = 1
                             w2 = smoothed_f
@@ -299,11 +301,13 @@ class EdgeList:
 
                             fp.write(edgerow)
                             if col in numeric_columns:
-                                n1 = 'tn__' + split
+                                # n2 = 'tn__' + split
+                                n2 = 'tn__ ' + split
                             else:
-                                n1 = 'tt__' + split
+                                # n2 = 'tt__' + split
+                                n2 = 'tt__ ' + split
 
-                            n2 = 'cid__' + col
+                            n2 = f'cid__{col_idx} ' + col
                             w1 = smoothed_f
                             w2 = 1
                             self.edgelist.append((n1, n2, w1, w2))
