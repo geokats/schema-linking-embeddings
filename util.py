@@ -75,3 +75,54 @@ def vector_align(x, R):
     x_new = np.dot(x, R.T)
     x_new /= np.linalg.norm(x, axis=1)[:, np.newaxis] + 1e-8
     return x_new
+
+def get_col_matches(tokens, tdf, model, threshold=0.5):
+    column_tokens = []
+    for i, col in enumerate(tdf.columns):
+    #     column_tokens.append([f"cid__{i}"] + nltk.word_tokenize(col))
+        column_tokens.append([f"cid__{i}"] + col.split(' '))
+
+    matches = []
+
+    for token in tokens:
+        min_dist = 1000
+        best_col = None
+        for col_id, col in enumerate(column_tokens):
+            dists = model.wv.distances(token, col)
+            dist = dists.mean()
+            if best_col is None or dist < min_dist:
+                min_dist = dist
+                best_col = col_id
+
+#         print(f"{token} -> {table['header'][best_col]} ({min_dist})")
+        if min_dist < threshold:
+            matches.append((token, best_col))
+
+    return matches
+
+def get_row_matches(tokens, tdf, model, threshold=0.5):
+    row_tokens = []
+    for i, row in tdf.iterrows():
+        cur_row = [f"idx__{i}"]
+        for val in row.values:
+            cur_row.extend(val.split(' '))
+
+        row_tokens.append(cur_row)
+
+    matches = []
+
+    for token in tokens:
+        min_dist = 1000
+        best_row = None
+        for row_id, row in enumerate(row_tokens):
+            dists = model.wv.distances(token, row)
+            dist = dists.mean()
+            if best_row is None or dist < min_dist:
+                min_dist = dist
+                best_row = row_id
+
+#         print(f"{token} -> {best_row} ({min_dist})")
+        if min_dist < threshold:
+            matches.append((token, best_row))
+
+    return matches
