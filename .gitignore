@@ -1,3 +1,5 @@
 *.pyc
 __pycache__/
 wikisql/data/
+tmp/
+embeddings/
