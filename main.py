@@ -24,7 +24,6 @@ def parse_args():
     parser.add_argument("-a", "--embeddings_algorithm", choices=['word2vec', 'fasttext'], required=True, help="Algorithm to use for training local embeddings")
     parser.add_argument("-o", "--output_dir", required=True, help="Output directory to save the table embeddings and alignment matrices")
 
-
     return(parser.parse_args())
 
 
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     #NOTE: In our case the pre-trained embeddings are the source embeddings, while
     #      the table embeddings are the target embeddings, and we want to find
     #      a mapping from the table embeddings space to the pre-trained space
-    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=10000, verbose=False)
+    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=-1, verbose=False)
     words_pre_set = set(words_pre)
     idx_pre = idx(words_pre)
 
