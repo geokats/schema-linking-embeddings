@@ -77,11 +77,11 @@ def create_table_emb(tdf, emb_file, emb_alg, emb_dim):
     walks = random_walks_generation(configuration, graph)
 
 
-    learn_embeddings(emb_file, walks_file, True, emb_dim, 15,
+    model = learn_embeddings(emb_file, walks_file, True, emb_dim, 15,
                      training_algorithm=emb_alg,
                      learning_method='skipgram', sampling_factor=0.001
                     )
-
+    return model
 
 if __name__ == '__main__':
     args = parse_args()
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     #NOTE: In our case the pre-trained embeddings are the source embeddings, while
     #      the table embeddings are the target embeddings, and we want to find
     #      a mapping from the table embeddings space to the pre-trained space
-    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=-1, verbose=False)
+    words_pre, vec_pre = load_vectors(args.embeddings_file, maxload=10000, verbose=False)
     words_pre_set = set(words_pre)
     idx_pre = idx(words_pre)
 
@@ -119,12 +119,12 @@ if __name__ == '__main__':
             matrix_out_file = os.path.join(args.output_dir, f"{table_id}.R.npy")
 
             #Create table embeddings
-            create_table_emb(tdf, emb_out_file, args.embeddings_algorithm, args.embeddings_dimension)
+            model = create_table_emb(tdf, emb_out_file, args.embeddings_algorithm, args.embeddings_dimension)
 
             #Load table embeddings
-            words_tab, vec_tab = load_vectors(emb_out_file, maxload=-1, verbose=False)
-            words_tab_set = set(words_tab)
-            idx_tab = idx(words_tab)
+            vec_tab = model.wv.vectors
+            words_tab_set = set(model.wv.key_to_index.keys())
+            idx_tab = model.wv.key_to_index
 
             #Find anchor words
             anchors = words_tab_set & words_pre_set #Common words are the intersection

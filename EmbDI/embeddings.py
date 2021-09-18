@@ -59,6 +59,7 @@ def learn_embeddings(output_embeddings_file, walks, write_walks, dimensions, win
         else:
             model = FastText(sentences=walks, vector_size=dimensions, workers=workers, min_count=2, window=window_size)
             model.wv.save_word2vec_format(output_embeddings_file)
+    return model
 
 
 def return_combined(row, wv, n_dimensions):
