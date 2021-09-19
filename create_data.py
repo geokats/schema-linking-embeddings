@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm.auto import tqdm
 
-from utils import wikisql_redable
+from util import wikisql_redable
 
 N_MAX = 7
 
