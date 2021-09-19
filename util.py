@@ -156,3 +156,48 @@ def add_aligned_vectors(kv, tokens, vec_pre, idx_pre, R):
     kv.add_vectors(add_words, aligned_vecs, replace=False)
 
     return kv
+
+def get_stats(matches, gt_matches):
+    matched_pred = [False for _ in matches]
+    matched_gt = [False for _ in gt_matches]
+
+    for gt_idx, (gt_token, gt_col_id) in enumerate(gt_matches):
+        for pred_idx, (token, col_id) in enumerate(matches):
+            if matched_pred[pred_idx]:
+                continue
+            if token.lower() in gt_token and col_id == gt_col_id:
+                matched_pred[pred_idx] = True
+                matched_gt[gt_idx] = True
+                break
+
+    tp = sum(matched_gt)
+    fp = len(matched_pred) - sum(matched_pred)
+    fn = len(matched_gt) - sum(matched_gt)
+
+    return tp, fp, fn
+
+def get_prec(stats):
+    try:
+        tab_prec = stats['tab_tp']/(stats['tab_tp']+stats['tab_fp'])
+    except ZeroDivisionError:
+        tab_prec = -1
+
+    try:
+        pre_prec = stats['pre_tp']/(stats['pre_tp']+stats['pre_fp'])
+    except ZeroDivisionError:
+        pre_prec = -1
+
+    return tab_prec, pre_prec
+
+def get_rec(stats):
+    try:
+        tab_rec = stats['tab_tp']/(stats['tab_tp']+stats['tab_fn'])
+    except ZeroDivisionError:
+        tab_rec = -1
+
+    try:
+        pre_rec = stats['pre_tp']/(stats['pre_tp']+stats['pre_fn'])
+    except ZeroDivisionError:
+        pre_rec = -1
+
+    return tab_rec, pre_rec
