@@ -5,12 +5,51 @@ This project was completed for the Database Systems class taught by Dr. Georgia
 Koutrika, as part of the Data Science and Information Technologies MSc programme
 at the University of Athens.
 
+The goal of the project is to construct word embedding representations from a
+given table in order to perform better schema linking.
+
 Instructions on how to download the necessary files and how to run the code can
 be found bellow.
 It is also possible to run the experiments on Google Colab, without downloading
 anything, by using the notebook in this repository.
 To do so click here:
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/geokats/schema-linking-embeddings/blob/main/sl_emb_experiments.ipynb)
+
+## Running the program
+To run our programs you can use the following commands.
+
+For creating the schema linking dataset:
+
+```
+python create_data.py -i INPUT_FILE -t TABLE_FILE -o OUTPUT_FILE
+
+arguments:
+  -i INPUT_FILE, --input_file INPUT_FILE
+                        Input WikiSQL .jsonl file
+  -t TABLE_FILE, --table_file TABLE_FILE
+                        Input WikiSQL .tables.jsonl file
+  -o OUTPUT_FILE, --output_file OUTPUT_FILE
+                        Output file to save the updated examples with schema links
+
+```
+
+For creating the table embeddings and alignment matrices:
+
+```
+python main.py -t TABLES_FILE -e EMBEDDINGS_FILE -d EMBEDDINGS_DIMENSION -a {word2vec,fasttext} -o OUTPUT_DIR
+
+optional arguments:
+  -t TABLES_FILE, --tables_file TABLES_FILE
+                        Input WikiSQL .tables.jsonl file
+  -e EMBEDDINGS_FILE, --embeddings_file EMBEDDINGS_FILE
+                        Pre-trained embeddings file
+  -d EMBEDDINGS_DIMENSION, --embeddings_dimension EMBEDDINGS_DIMENSION
+                        Dimension of pre-trained embeddings
+  -a {word2vec,fasttext}, --embeddings_algorithm {word2vec,fasttext}
+                        Algorithm to use for training local embeddings
+  -o OUTPUT_DIR, --output_dir OUTPUT_DIR
+                        Output directory to save the table embeddings and alignment matrices
+```
 
 ## Data
 
