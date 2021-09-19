@@ -1,5 +1,17 @@
 # Locally Aligned Embeddings for Schema Linking
 
+## Introduction
+This project was completed for the Database Systems class taught by Dr. Georgia
+Koutrika, as part of the Data Science and Information Technologies MSc programme
+at the University of Athens.
+
+Instructions on how to download the necessary files and how to run the code can
+be found bellow.
+It is also possible to run the experiments on Google Colab, without downloading
+anything, by using the notebook in this repository.
+To do so click here:
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/geokats/schema-linking-embeddings/blob/main/sl_emb_experiments.ipynb)
+
 ## Data
 
 ### WikiSQL Dataset
