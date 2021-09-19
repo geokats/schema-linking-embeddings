@@ -209,3 +209,19 @@ def get_f_score(rec, prec):
         f1 = -1
 
     return f1
+
+def create_gt(sql, gt):
+    gt_col_matches = [(gt['select_name'], sql['sel'])]
+    gt_row_matches = []
+
+    if sql.get('conds', None):
+        for cond, name_link, val_link in zip(sql['conds'], gt['where_name'], gt['where_value']):
+            col, _, val = cond
+            if name_link != None:
+                gt_col_matches.append((name_link, col))
+            if val_link != None:
+                for row_id, row in enumerate(tdf[tdf.columns[col]].values):
+                    if val_link == row.lower():
+                        gt_row_matches.append((val_link, row_id))
+
+    return gt_col_matches, gt_row_matches
