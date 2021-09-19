@@ -79,8 +79,6 @@ if __name__ == '__main__':
         "val_pm" : 0, #Number of WHERE values matched partially
     }
 
-    lemmatizer = WordNetLemmatizer()
-
     with open(args.input_file, 'r') as inp_f, open(args.output_file, 'w') as out_f:
         for line in tqdm(inp_f.readlines()):
             example = json.loads(line)
