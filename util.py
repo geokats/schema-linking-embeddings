@@ -169,7 +169,7 @@ def get_stats(matches, gt_matches):
         for pred_idx, (token, col_id) in enumerate(matches):
             if matched_pred[pred_idx]:
                 continue
-            if token.lower() in gt_token and col_id == gt_col_id:
+            if str(token).lower() in gt_token and col_id == gt_col_id:
                 matched_pred[pred_idx] = True
                 matched_gt[gt_idx] = True
                 break
@@ -225,7 +225,7 @@ def create_gt(sql, gt, tdf):
                 gt_col_matches.append((name_link, col))
             if val_link != None:
                 for row_id, row in enumerate(tdf[tdf.columns[col]].values):
-                    if val_link == row.lower():
+                    if val_link == str(row).lower():
                         gt_row_matches.append((val_link, row_id))
 
     return gt_col_matches, gt_row_matches
