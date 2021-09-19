@@ -150,7 +150,10 @@ def add_aligned_vectors(kv, tokens, vec_pre, idx_pre, R):
     for token in tokens:
         if not kv.has_index_for(token):
             add_words.append(token)
-            add_vecs.append(vec_pre[idx_pre[token]])
+            if token in idx_pre:
+                add_vecs.append(vec_pre[idx_pre[token]])
+            else:
+                add_vecs.append(np.zeros((vec_pre.shape[1])))
 
     aligned_vecs = vector_align(np.array(add_vecs), R)
     kv.add_vectors(add_words, aligned_vecs, replace=False)
