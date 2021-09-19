@@ -155,8 +155,9 @@ def add_aligned_vectors(kv, tokens, vec_pre, idx_pre, R):
             else:
                 add_vecs.append(np.zeros((vec_pre.shape[1])))
 
-    aligned_vecs = vector_align(np.array(add_vecs), R)
-    kv.add_vectors(add_words, aligned_vecs, replace=False)
+    if len(add_words) > 0:
+        aligned_vecs = vector_align(np.array(add_vecs), R)
+        kv.add_vectors(add_words, aligned_vecs, replace=False)
 
     return kv
 
