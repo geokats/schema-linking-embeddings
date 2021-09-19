@@ -88,7 +88,7 @@ This project is built on two earlier works:
   }
   ```
 
--  [FastText alignment package](https://github.com/facebookresearch/fastText/tree/master/alignment) [2]
+- [FastText alignment package](https://github.com/facebookresearch/fastText/tree/master/alignment) [2]
 
   ```
   @InProceedings{joulin2018loss,
