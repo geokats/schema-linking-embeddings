@@ -201,3 +201,11 @@ def get_rec(stats):
         pre_rec = -1
 
     return tab_rec, pre_rec
+
+def get_f_score(rec, prec):
+    try:
+        f1 = 2 * prec * rec / (prec + rec)
+    except ZeroDivisionError:
+        f1 = -1
+
+    return f1
