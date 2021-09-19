@@ -1,4 +1,5 @@
 gensim == 4.0.0
+nltk == 3.6.2
 datasketch
 strsim
 scikit-learn
