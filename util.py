@@ -210,7 +210,7 @@ def get_f_score(rec, prec):
 
     return f1
 
-def create_gt(sql, gt):
+def create_gt(sql, gt, tdf):
     gt_col_matches = [(gt['select_name'], sql['sel'])]
     gt_row_matches = []
 
