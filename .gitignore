@@ -4,3 +4,5 @@ __pycache__/
 wikisql/data/
 tmp/
 embeddings/
+app/static/bootstrap
+app/slemb
