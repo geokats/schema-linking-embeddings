@@ -15,6 +15,8 @@ anything, by using the notebook in this repository.
 To do so click here:
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/geokats/schema-linking-embeddings/blob/main/sl_emb_experiments.ipynb)
 
+![Local embedding creation overview](/report/figures/overview.png)
+
 ## Running the program
 To run our programs you can use the following commands.
 
